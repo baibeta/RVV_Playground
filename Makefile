@@ -7,4 +7,7 @@ rvv_ld_st: rvv_ld_st.c
 	${CC} $^ -o $@ ${CXXFLAGS}
 
 run:
-	-/data/home/yifan.bai/xuantie-qemu-x86_64-Ubuntu-18.04-20221104-0752.tar/bin/qemu-riscv64 -cpu c908v rvv_ld_st
+	-/data/home/yifan.bai/thead/xuantie-qemu-x86_64-Ubuntu-18.04-20221104-0752.tar/bin/qemu-riscv64 -cpu c908v rvv_ld_st
+
+clean:
+	-rm rvv_ld_st
