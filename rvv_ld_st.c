@@ -1,5 +1,6 @@
 #include <riscv_vector.h>
 #include <stdio.h>
+#include <string.h>
 
 
 void test_strided() {
@@ -92,6 +93,58 @@ void test_indexed() {
                     dst[12],dst[13],dst[14],dst[15]);
 }
 
+// reference:
+// https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/master/examples/rvv_strlen.c
+size_t strlen_vec(char *src) {
+  size_t vlmax = vsetvlmax_e8m8();
+  char *copy_src = src;
+  long first_set_bit = -1;
+  size_t vl;
+  while (first_set_bit < 0) {
+    vint8m8_t vec_src = vle8ff_v_i8m8(copy_src, &vl, vlmax);
+    vbool1_t string_terminate = vmseq_vx_i8m8_b1(vec_src, 0, vl);
+
+    copy_src += vl;
+
+    first_set_bit = vfirst_m_b1(string_terminate, vl);
+  }
+  copy_src -= vl - first_set_bit;
+
+  return (size_t)(copy_src - src);
+}
+
+void test_fault_only_first() {
+    printf("Test fault only first load.\n");
+
+    char s0[] = "shfjasjdlfkjaskfdjsl";
+
+    // compute
+    size_t golden, actual;
+    golden = strlen(s0);
+    actual = strlen_vec(s0);
+
+    printf("golden = %d  actual = %d \n", golden, actual);
+}
+
+
+void test_segment() {
+    printf("Test segment load and store function.\n");
+    float a[] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8};
+    vfloat32m1_t v0, v1;
+    vlseg2e32_v_f32m1(&v0, &v1, a, 4);
+
+    float dst1[4] = {0};
+    float dst2[4] = {0};
+    vse32_v_f32m1(dst1, v0, 4);
+    vse32_v_f32m1(dst2, v1, 4);
+
+    // dst1 = [0.100000 0.300000 0.500000 0.700000]
+    // dst2 = [0.200000 0.400000 0.600000 0.800000]
+    printf("dst1 = [%f %f %f %f]\n",dst1[0],dst1[1],dst1[2],dst1[3]);
+    printf("dst2 = [%f %f %f %f]\n",dst2[0],dst2[1],dst2[2],dst2[3]);
+
+}
+
 
 int main() {
     float a[] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8};
@@ -151,6 +204,11 @@ int main() {
     test_strided();
 
     test_indexed();
+
+    test_fault_only_first();
+
+    test_segment();
+
     printf("Finish.\n");
 
     return 0;
