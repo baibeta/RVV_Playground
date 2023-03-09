@@ -24,6 +24,15 @@
 
 const __int32_t a[] = {1,2,3,4};
 const __int32_t b[] = {8,7,6,5};
+void dump_i8_vector(vint8m1_t v, size_t vl) {
+    __int8_t* array = (__int8_t*)malloc(vl * sizeof(__int8_t));
+    vse8_v_i8m1(array, v, vl);
+    for(int i = 0; i < vl; i++) {
+        printf("[%"PRId8"] ",array[i]);
+    }
+    printf("\n");
+    free(array);
+}
 void dump_i32_vector(vint32m1_t v, size_t vl) {
     __int32_t* array = (__int32_t*)malloc(vl * sizeof(__int32_t));
     vse32_v_i32m1(array, v, vl);
@@ -204,10 +213,147 @@ void vici() {
     vbool = vmseq_vv_i32m1_b32 (v_a, v_c, vl);
     vsm_v_b32 (array, vbool, 4);
     printBinary(array[0]);
+}
 
+// Vector Integer Min/Max Instructions
+void vimmi() {
+    size_t vl = vsetvlmax_e32m1();
+    vint32m1_t v_a = vle32_v_i32m1 (a, vl);
+    vint32m1_t v_b = vle32_v_i32m1 (b, vl);
+    printf("Vector Integer Min/Max Instructions\n");
+
+    vint32m1_t v_min = vmin_vv_i32m1 (v_a, v_b, vl);
+    dump_i32_vector(v_min, vl);
+}
+
+// Vector Single-Width Integer Multiply Instructions
+void vswimi() {
+    int8_t i8a[16] = {20, 30, 100, 120};
+    int8_t i8b[16] = {2, 3, 100, 120};
+    vint8m1_t v_a = vle8_v_i8m1(i8a, 4);
+    vint8m1_t v_b = vle8_v_i8m1(i8b, 4);
+    printf("Vector Single-Width Integer Multiply Instructions\n");
+
+    // A * B not saturated
+
+    // 100 * 100 = 10000 = 0010 0111 0001 0000
+    // low 8bit = 00010000 = 16
+    // high 8b  = 00100111 = 39
+
+    // [40] [90] [16] [64]
+    vint8m1_t v_ab_low = vmul_vv_i8m1 (v_a, v_b, 4);
+    dump_i8_vector(v_ab_low, 4);
+    // [0] [0] [39] [56]
+    vint8m1_t v_ab_high = vmulh_vv_i8m1 (v_a, v_b, 4);
+    dump_i8_vector(v_ab_high, 4);
+}
+
+// Vector Integer Divide Instructions
+void vidi() {
+    size_t vl = vsetvlmax_e32m1();
+    vint32m1_t v_a = vle32_v_i32m1 (a, vl);
+    vint32m1_t v_b = vle32_v_i32m1 (b, vl);
+    printf("Vector Integer Divide Instructions\n");
+
+    // v_b = 8 7 6 5
+    // v_a = 1 2 3 4
+    // v_b / v_a = 8 3 2 1
+    dump_i32_vector(vdiv_vv_i32m1(v_b, v_a, vl), vl);
+    // v_b % v_a = 0 1 0 1
+    dump_i32_vector(vrem_vv_i32m1(v_b, v_a, vl), vl);
 
 }
 
+// Vector Widening Integer Multiply Instructions
+void vwimi() {
+    int32_t i32a[4] = {1000, 2000, 3000, 4000};
+    int32_t i32_max = 2147483647;
+    vint32m1_t v_a = vle32_v_i32m1(i32a, 4);
+    printf("Vector Widening Integer Multiply Instructions\n");
+
+    // A * B => 2 times SEW result
+    // [2147483647000] [4294967294000] [6442450941000] [8589934588000]
+    vint64m2_t v_a_max = vwmul_vx_i64m2(v_a, i32_max, 4);
+    dump_i64m2_vector(v_a_max, 4);
+}
+
+// Vector Single-Width Integer Multiply-Add Instructions
+void vswimai() {
+    int c[4] = {3,4,5,6};
+    size_t vl = vsetvlmax_e32m1();
+    vint32m1_t v_a = vle32_v_i32m1 (a, vl);
+    vint32m1_t v_b = vle32_v_i32m1 (b, vl);
+    vint32m1_t v_c = vle32_v_i32m1 (c, vl);
+
+    printf("Vector Single-Width Integer Multiply-Add Instructions\n");
+
+    // v_a = 1 2 3 4
+    // v_b = 8 7 6 5
+    // v_c = 3 4 5 6
+    // a + b * c = [25] [30] [33] [34]
+    dump_i32_vector(vmacc_vv_i32m1 (v_a, v_b, v_c, vl), vl);
+    // a * b + c = [11] [18] [23] [26]
+    dump_i32_vector(vmadd_vv_i32m1 (v_a, v_b, v_c, vl), vl);
+}
+
+// Vector Widening Integer Multiply-Add Instructions
+void vwimai() {
+    int64_t c[4] = {3,4,5,6};
+    size_t vl = vsetvlmax_e32m1();
+    vint32m1_t v_a = vle32_v_i32m1 (a, vl);
+    vint32m1_t v_b = vle32_v_i32m1 (b, vl);
+    vint64m2_t v_c = vle64_v_i64m2 (c, vl);
+
+    printf("Vector Widening Integer Multiply-Add Instructions\n");
+
+    // v_a = 1 2 3 4
+    // v_b = 8 7 6 5
+    // v_c = 3 4 5 6
+    // c + a * b = [11] [18] [23] [26]
+    dump_i64m2_vector(vwmacc_vv_i64m2 (v_c, v_a, v_b, vl), vl);
+}
+
+// Vector Integer Merge Instructions
+void vimi() {
+    printf("Vector Integer Merge Instructions\n");
+    size_t vl = vsetvlmax_e8m1();
+    uint8_t mask[2] = {170,170};
+    int8_t i8a[16] = {1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+    int8_t i8b[16] = {11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26};
+    vint8m1_t v_a = vle8_v_i8m1(i8a, vl);
+    vint8m1_t v_b = vle8_v_i8m1(i8b, vl);
+
+    // vlm.v vd, (rs1)   #  Load byte vector of length ceil(vl/8)
+    vbool8_t vmask = vlm_v_b8 (mask, vl);
+    // vmerge.vvm vd, vs2, vs1, v0  # vd[i] = v0.mask[i] ? vs1[i] : vs2[i]
+    vint8m1_t v_merged = vmerge_vvm_i8m1 (vmask, v_a, v_b, vl);
+    // [1] [12] [3] [14] [5] [16] [7] [18] [9] [20] [11] [22] [13] [24] [15] [26]
+    dump_i8_vector(v_merged, vl);
+
+    // https://github.com/riscv/riscv-v-spec/blob/master/v-spec.adoc#1115-vector-integer-merge-instructions
+    // if mask[i] is 1 then v_merged[i] = v_a[i], otherwize v_b[i]
+    //
+    // 1. load mask[170, 170] to v0
+    //(gdb) p $v0  { b = {170, 170, 0 <repeats 14 times>}}
+    // 2. convert mask to binary:
+    // 10101010 10101010
+    // so result is a b a b a b a b...
+}
+
+// Vector Integer Move Instructions
+void vimoi() {
+    size_t vl = vsetvlmax_e32m1();
+    vint32m1_t v_a = vle32_v_i32m1(a, vl);
+
+    printf("Vector Integer Move Instructions\n");
+    vint32m1_t v_dst = vmv_v_v_i32m1(v_a, vl);
+    // [1] [2] [3] [4]
+    dump_i32_vector(v_dst, vl);
+
+    v_dst = vmv_v_x_i32m1(25, vl);
+    // [25] [25] [25] [25]
+    dump_i32_vector(v_dst, vl);
+}
 
 int main() {
     // Vector Single-Width Integer Add and Subtract
@@ -226,7 +372,22 @@ int main() {
     vnirsi();
     // Vector Integer Compare Instructions
     vici();
-
+    // Vector Integer Min/Max Instructions
+    vimmi();
+    // Vector Single-Width Integer Multiply Instructions
+    vswimi();
+    // Vector Integer Divide Instructions
+    vidi();
+    // Vector Widening Integer Multiply Instructions
+    vwimi();
+    // Vector Single-Width Integer Multiply-Add Instructions
+    vswimai();
+    // Vector Widening Integer Multiply-Add Instructions
+    vwimai();
+    // Vector Integer Merge Instructions
+    vimi();
+    // Vector Integer Move Instructions
+    vimoi();
 
     return 0;
 }
