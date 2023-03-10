@@ -47,5 +47,13 @@ int main() {
     v_dst = vredxor_vs_i32m1_i32m1 (v_dst, v_a, v_b, vl);
     dump_i32_vector(v_dst,1);
 
+
+    // Vector Widening Integer Reduction Instructions
+    // only reduce_sum
+    // vint64m1_t vwredsum_vs_i32m1_i64m1 (vint64m1_t dest, vint32m1_t vector,
+    //                                         vint64m1_t scalar, size_t vl);
+
+
+
     return 0;
 }

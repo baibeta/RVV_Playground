@@ -12,6 +12,15 @@ void dump_i8_vector(vint8m1_t v, size_t vl) {
     printf("\n");
     free(array);
 }
+void dump_u8_vector(vuint8m1_t v, size_t vl) {
+    __uint8_t* array = (__uint8_t*)malloc(vl * sizeof(__uint8_t));
+    vse8_v_u8m1(array, v, vl);
+    for(int i = 0; i < vl; i++) {
+        printf("[%"PRId8"] ",array[i]);
+    }
+    printf("\n");
+    free(array);
+}
 void dump_i32_vector(vint32m1_t v, size_t vl) {
     __int32_t* array = (__int32_t*)malloc(vl * sizeof(__int32_t));
     vse32_v_i32m1(array, v, vl);
