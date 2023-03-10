@@ -1,4 +1,4 @@
-all: rvv_ld_st rvv_int_arith rvv_fixed_point rvv_floating_point rvv_reduction rvv_mask rvv_permutation run
+all: rvv_ld_st rvv_int_arith rvv_fixed_point rvv_floating_point rvv_reduction rvv_mask rvv_permutation rvv_misc run
 CROSS_COMPILE ?= /data/home/yifan.bai/thead/Xuantie-900-gcc-linux-5.10.4-glibc-x86_64-V2.6.1/bin/riscv64-unknown-linux-gnu-
 CC=$(CROSS_COMPILE)gcc
 CXXFLAGS= -march=rv64gcv_zfh_xtheadc_xtheadv -mabi=lp64d -static -g -Og
@@ -25,6 +25,9 @@ rvv_mask: rvv_mask.c
 rvv_permutation: rvv_permutation.c
 	${CC} $^ -I ./ -o $@ ${CXXFLAGS}
 
+rvv_misc: rvv_misc.c
+	${CC} $^ -I ./ -o $@ ${CXXFLAGS}
+
 run:
 	-/data/home/yifan.bai/thead/xuantie-qemu-x86_64-Ubuntu-18.04-20221104-0752.tar/bin/qemu-riscv64 -cpu c908v rvv_ld_st
 	-/data/home/yifan.bai/thead/xuantie-qemu-x86_64-Ubuntu-18.04-20221104-0752.tar/bin/qemu-riscv64 -cpu c908v rvv_int_arith
@@ -33,6 +36,7 @@ run:
 	-/data/home/yifan.bai/thead/xuantie-qemu-x86_64-Ubuntu-18.04-20221104-0752.tar/bin/qemu-riscv64 -cpu c908v rvv_reduction
 	-/data/home/yifan.bai/thead/xuantie-qemu-x86_64-Ubuntu-18.04-20221104-0752.tar/bin/qemu-riscv64 -cpu c908v rvv_mask
 	-/data/home/yifan.bai/thead/xuantie-qemu-x86_64-Ubuntu-18.04-20221104-0752.tar/bin/qemu-riscv64 -cpu c908v rvv_permutation
+	-/data/home/yifan.bai/thead/xuantie-qemu-x86_64-Ubuntu-18.04-20221104-0752.tar/bin/qemu-riscv64 -cpu c908v rvv_misc
 
 clean:
-	-rm rvv_ld_st rvv_int_arith rvv_fixed_point rvv_floating_point rvv_reduction rvv_mask rvv_permutation
+	-rm rvv_ld_st rvv_int_arith rvv_fixed_point rvv_floating_point rvv_reduction rvv_mask rvv_permutation rvv_misc

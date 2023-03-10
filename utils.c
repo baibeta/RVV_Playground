@@ -30,6 +30,16 @@ void dump_i32_vector(vint32m1_t v, size_t vl) {
     printf("\n");
     free(array);
 }
+void dump_i32_vector_hex(vint32m1_t v, size_t vl) {
+    __int32_t* array = (__int32_t*)malloc(vl * sizeof(__int32_t));
+    vse32_v_i32m1(array, v, vl);
+    for(int i = 0; i < vl; i++) {
+        printf("[0x%x] ",array[i]);
+    }
+    printf("\n");
+    free(array);
+}
+
 void dump_u32_vector(vuint32m1_t v, size_t vl) {
     uint32_t* array = (uint32_t*)malloc(vl * sizeof(uint32_t));
     vse32_v_u32m1(array, v, vl);
@@ -60,6 +70,15 @@ void dump_i16mf2_vector(vint16mf2_t v, size_t vl) {
 void dump_f32m1_vector(vfloat32m1_t v, size_t vl) {
     float* array = (float*)malloc(vl * sizeof(float));
     vse32_v_f32m1(array, v, vl);
+    for(int i = 0; i < vl; i++) {
+        printf("[%f] ",array[i]);
+    }
+    printf("\n");
+    free(array);
+}
+void dump_f32m2_vector(vfloat32m2_t v, size_t vl) {
+    float* array = (float*)malloc(vl * sizeof(float));
+    vse32_v_f32m2(array, v, vl);
     for(int i = 0; i < vl; i++) {
         printf("[%f] ",array[i]);
     }
