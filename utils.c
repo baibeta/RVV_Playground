@@ -48,9 +48,34 @@ void dump_i16mf2_vector(vint16mf2_t v, size_t vl) {
     printf("\n");
     free(array);
 }
-void printBinary(uint8_t c) {
-    for(int i = 0; i < 8; i++) {
+void dump_f32m1_vector(vfloat32m1_t v, size_t vl) {
+    float* array = (float*)malloc(vl * sizeof(float));
+    vse32_v_f32m1(array, v, vl);
+    for(int i = 0; i < vl; i++) {
+        printf("[%f] ",array[i]);
+    }
+    printf("\n");
+    free(array);
+}
+void dump_f64m2_vector(vfloat64m2_t v, size_t vl) {
+    double* array = (double*)malloc(vl * sizeof(double));
+    vse64_v_f64m2(array, v, vl);
+    for(int i = 0; i < vl; i++) {
+        printf("[%f] ",array[i]);
+    }
+    printf("\n");
+    free(array);
+}
+
+void printBinary(uint8_t c, size_t vl) {
+    for(int i = 0; i < vl; i++) {
         printf("%d", (c >> i) & 1);
     }
     printf("\n");
+}
+
+void dump_vbool32_mask(vbool32_t vb, size_t vl) {
+    uint8_t mask[1] = {0};
+    vsm_v_b32 (mask, vb, vl);
+    printBinary(mask[0], vl);
 }

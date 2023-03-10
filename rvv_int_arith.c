@@ -147,11 +147,11 @@ void vici() {
 
     uint8_t array[4] = {0,0,0,0};
     vsm_v_b32 (array, vbool, 4);
-    printBinary(array[0]);
+    printBinary(array[0], vl);
 
     vbool = vmseq_vv_i32m1_b32 (v_a, v_a, vl);
     vsm_v_b32 (array, vbool, 4);
-    printBinary(array[0]);
+    printBinary(array[0], vl);
 
     int c[4] = {1,1,3,3};
     //    a  = 1 2 3 4
@@ -160,7 +160,7 @@ void vici() {
     vint32m1_t v_c = vle32_v_i32m1 (c, vl);
     vbool = vmseq_vv_i32m1_b32 (v_a, v_c, vl);
     vsm_v_b32 (array, vbool, 4);
-    printBinary(array[0]);
+    printBinary(array[0], vl);
 }
 
 // Vector Integer Min/Max Instructions
